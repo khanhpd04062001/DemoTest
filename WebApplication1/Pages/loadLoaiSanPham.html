@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Danh Sách Loại Sản Phẩm</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <div>
+        <input type="text" id="keyword" placeholder="Nhập từ khóa" />
+        <button id="searchButton">Tìm kiếm</button>
+    </div>
+
+    <table id="loaiSanPhamTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Số lượng sản phẩm</th>
+                <th>Ngày Nhập</th>
+                <th>Chức năng</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
+    <script>$(document).ready(function () {
+            
+
+            // Khởi tạo DataTable
+            const table = $('#loaiSanPhamTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: 'http://localhost:5159/api/LoaiSanPhams', 
+                    type: 'GET',
+                    data: function (d) {
+                        d.keyword = $('#keyword').val();
+                    }
+                },
+                columns: [
+                    { data: 'loaiSanPhamId' },
+                    { data: 'tenLoai' },
+                    { data: 'soLuongSanPham' },
+                    { data: 'ngayNhap', render: function (data) { return new Date(data).toLocaleDateString(); } },
+                    {
+                        data: 'loaiSanPhamId',
+                        render: function (data) {
+                            return `
+                                    <button class="btn btn-sm btn-warning edit" data-id="${data}">Sửa</button>
+                                    <button class="btn btn-sm btn-danger delete" data-id="${data}">Xóa</button>
+                                `;
+                        }
+                    }
+                ]
+            });
+
+            // Tìm kiếm
+            $('#searchButton').click(function () {
+                table.ajax.reload();
+            });
+
+            $('#loaiSanPhamTable').on('click', '.delete', function () {
+                const id = $(this).data('id');
+                console.log(id);
+                if (confirm('Bạn có chắc chắn muốn xóa loại sản phẩm này?')) {
+                    $.ajax({
+                        url: `http://localhost:5159/api/LoaiSanPhams/${id}`,
+                        type: 'DELETE',
+                        success: function () {
+                            table.ajax.reload();
+                        },
+                        error: function () {
+                            alert('Không thể xóa loại sản phẩm.');
+                        }
+                    });
+                }
+            });
+
+            $('#loaiSanPhamTable').on('click', '.edit', function () {
+                const id = $(this).data('id');
+                console.log(id);
+                window.location.href = `updateLoaiSanPham.html?id=${id}`;
+                    //`C:/Users/admin/Documents/WebApplication1/WebApplication1/Pages/loadSanPham.html/${id}`;
+            });
+        });</script>
+</body>
+</html>

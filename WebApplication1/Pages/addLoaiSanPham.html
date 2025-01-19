@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Sản Phẩm</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Thêm Loại Sản Phẩm</h2>
+
+        <form id="createTypeProductForm">
+            <div class="form-group">
+                <label for="TenLoaiSanPham">Tên Loại Sản Phẩm</label>
+                <input type="text" class="form-control" id="TenLoaiSanPham" name="TenLoaiSanPham" />
+                <span id="TenLoaiSanPhamError" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="NgayNhap">Ngày Nhập</label>
+                <input type="date" class="form-control" id="NgayNhap" name="NgayNhap" />
+                <span id="NgayNhapError" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Thêm Loại Sản Phẩm</button>
+        </form>
+
+        <div id="message" class="mt-3"></div>
+    </div>
+
+    <script>
+        $('#createTypeProductForm').submit(function (event) {
+            event.preventDefault();
+
+            var formData = {
+                TenLoai: $('#TenLoaiSanPham').val(),
+                NgayNhap: $('#NgayNhap').val(),
+            };
+            console.log(formData);
+
+            $.ajax({
+                type: 'POST',
+                url: `http://localhost:5159/api/LoaiSanPhams`,
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.success) {
+                        $('#message').html('<div class="alert alert-success">' + response.message + '</div>');
+                        window.location.href = 'C:/Users/admin/Documents/WebApplication1/WebApplication1/Pages/loadLoaiSanPham.html';
+                    } else {
+                        $('#message').html('<div class="alert alert-danger">' + response.message + '</div>');
+                    }
+                },
+                error: function () {
+                    $('#message').html('<div class="alert alert-danger">Đã có lỗi xảy ra. Vui lòng thử lại.</div>');
+                },
+                error: function (xhr, status, error) {
+                    $('#message').html('<div class="alert alert-danger">Lỗi: ' + xhr.status + ' - ' + error + '</div>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

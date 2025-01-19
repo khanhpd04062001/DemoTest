@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập Nhật Sản Phẩm</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Cập Nhật Sản Phẩm</h2>
+
+        <form id="updateProductForm">
+            <div class="form-group">
+                <label for="SanPhamId">ID Sản Phẩm</label>
+                <input type="number" class="form-control" id="SanPhamId" name="SanPhamId" readonly />
+            </div>
+
+            <div class="form-group">
+                <label for="TenSanPham">Tên Sản Phẩm</label>
+                <input type="text" class="form-control" id="TenSanPham" name="TenSanPham" />
+                <span id="TenSanPhamError" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="Gia">Giá</label>
+                <input type="number" class="form-control" id="Gia" name="Gia" />
+            </div>
+
+            <div class="form-group">
+                <label for="NgayNhap">Ngày Nhập</label>
+                <input type="date" class="form-control" id="NgayNhap" name="NgayNhap" />
+                <span id="NgayNhapError" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Cập Nhật Sản Phẩm</button>
+        </form>
+
+        <div id="message" class="mt-3"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const sanPhamId = urlParams.get('id');
+        console.log(sanPhamId);
+        // Hàm load dữ liệu sản phẩm cần cập nhật (ví dụ sử dụng ID từ query string)
+        function loadSanPhamData(sanPhamId) {
+            $.ajax({
+                type: 'GET',
+                url: `http://localhost:5159/api/SanPhams/${sanPhamId}`,
+                success: function (sanPham) {
+                    console.log(sanPham);
+                    $('#SanPhamId').val(sanPham.sanPhamId);
+                    $('#TenSanPham').val(sanPham.tenSanPham);
+                    $('#Gia').val(sanPham.gia);
+                    $('#NgayNhap').val(sanPham.ngayNhap ? sanPham.ngayNhap.split('T')[0] : '');
+                },
+                error: function () {
+                    $('#message').html('<div class="alert alert-danger">Không thể tải dữ liệu sản phẩm.</div>');
+                }
+            });
+        }
+
+        // Hàm xử lý cập nhật sản phẩm
+        $('#updateProductForm').submit(function (event) {
+            event.preventDefault();
+
+            var formData = {
+                SanPhamId: $('#SanPhamId').val(),
+                TenSanPham: $('#TenSanPham').val(),
+                Gia: $('#Gia').val(),
+                NgayNhap: $('#NgayNhap').val()
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `http://localhost:5159/api/SanPhams/${sanPhamId}`,
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.success) {
+                        // Hiển thị thông báo thành công
+                        $('#message').html('<div class="alert alert-success">' + response.message + '</div>');
+
+                        window.location.href = 'loadSanPham.html';
+                        //C: /Users/admin / Documents / WebApplication1 / WebApplication1 / Pages /
+                    } else {
+                        // Hiển thị thông báo lỗi
+                        $('#message').html('<div class="alert alert-danger">' + response.message + '</div>');
+                    }
+                },
+                error: function () {
+                    $('#message').html('<div class="alert alert-danger">Đã có lỗi xảy ra. Vui lòng thử lại.</div>');
+                },
+                error: function (xhr, status, error) {
+                    $('#message').html('<div class="alert alert-danger">Lỗi: ' + xhr.status + ' - ' + error + '</div>');
+                }
+            });
+        });
+        $(document).ready(function () {
+            loadSanPhamData(sanPhamId);
+        });
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập Nhật Loại Sản Phẩm</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Cập Nhật Loại Sản Phẩm</h2>
+
+        <form id="updateTypeProductForm">
+            <div class="form-group">
+                <label for="LoaiSanPhamId">ID Loại Sản Phẩm</label>
+                <input type="number" class="form-control" id="LoaiSanPhamId" name="LoaiSanPhamId" readonly />
+            </div>
+
+            <div class="form-group">
+                <label for="TenLoaiSanPham">Tên Loại Sản Phẩm</label>
+                <input type="text" class="form-control" id="TenLoaiSanPham" name="TenLoaiSanPham" />
+                <span id="TenLoaiSanPhamError" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="NgayNhap">Ngày Nhập</label>
+                <input type="date" class="form-control" id="NgayNhap" name="NgayNhap" />
+                <span id="NgayNhapError" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Cập Nhật Loại Sản Phẩm</button>
+        </form>
+
+        <div id="message" class="mt-3"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const loaiSanPhamId = urlParams.get('id');
+        console.log(loaiSanPhamId);
+        function loadLoaiSanPhamData(loaiSanPhamId) {
+            $.ajax({
+                type: 'GET',
+                url: `http://localhost:5159/api/LoaiSanPhams/${loaiSanPhamId}`,
+                success: function (loaisanPham) {
+                    console.log("Loại sản phẩm ", loaisanPham);
+                    $('#LoaiSanPhamId').val(loaisanPham.loaiSanPhamId);
+                    $('#TenLoaiSanPham').val(loaisanPham.tenLoai);
+                    $('#NgayNhap').val(sanPham.ngayNhap ? sanPham.ngayNhap.split('T')[0] : '');
+                },
+                error: function () {
+                    $('#message').html('<div class="alert alert-danger">Không thể tải dữ liệu loại sản phẩm.</div>');
+                }
+            });
+        }
+
+        $('#updateTypeProductForm').submit(function (event) {
+            event.preventDefault();
+
+            var formData = {
+                LoaiSanPhamId: $('#LoaiSanPhamId').val(),
+                TenLoai: $('#TenLoaiSanPham').val(),
+                NgayNhap: $('#NgayNhap').val()
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `http://localhost:5159/api/LoaiSanPhams/${loaiSanPhamId}`,
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.success) {
+                        // Hiển thị thông báo thành công
+                        $('#message').html('<div class="alert alert-success">' + response.message + '</div>');
+
+                        window.location.href = 'loadLoaiSanPham.html';
+                        //C: /Users/admin / Documents / WebApplication1 / WebApplication1 / Pages /
+                    } else {
+                        // Hiển thị thông báo lỗi
+                        $('#message').html('<div class="alert alert-danger">' + response.message + '</div>');
+                    }
+                },
+                error: function () {
+                    $('#message').html('<div class="alert alert-danger">Đã có lỗi xảy ra. Vui lòng thử lại.</div>');
+                },
+                error: function (xhr, status, error) {
+                    $('#message').html('<div class="alert alert-danger">Lỗi: ' + xhr.status + ' - ' + error + '</div>');
+                }
+            });
+        });
+        $(document).ready(function () {
+            loadLoaiSanPhamData(loaiSanPhamId);
+        });
+
+    </script>
+</body>
+</html>
