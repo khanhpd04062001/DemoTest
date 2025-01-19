@@ -86,7 +86,8 @@ namespace WebApplication1.Controllers
 
             if (string.IsNullOrEmpty(updatedLoaiSanPham.TenLoai))
             {
-                return BadRequest(new { success = false, message = "Tên loại sản phẩm không được để trống." });
+                return BadRequest(new { success = false, message = "Tên loại sản phẩm không được để trống." }); 
+
             }
 
             if (updatedLoaiSanPham.NgayNhap == null || updatedLoaiSanPham.NgayNhap > DateTime.Now)
